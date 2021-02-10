@@ -6,4 +6,4 @@ Handle incoming communication by pattern parsing.
 
 Credits to [BeyondCode](https://github.com/beyondcode/laravel-mailbox) for
 initial codebase which substantially diverged from the original, leaving
-no alternative than to separate it as a separate package.
+no alternative than to separate it as a new package.
