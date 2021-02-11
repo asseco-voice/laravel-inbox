@@ -8,7 +8,7 @@ use Asseco\Inbox\InboundEmail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Validator;
 
-class InboxRequest extends FormRequest
+class EmailRequest extends FormRequest
 {
     public function validator()
     {

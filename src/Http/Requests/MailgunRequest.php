@@ -7,7 +7,7 @@ namespace Asseco\Inbox\Http\Requests;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
-class MailgunRequest extends InboxRequest
+class MailgunRequest extends EmailRequest
 {
     public function validator()
     {

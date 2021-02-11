@@ -6,7 +6,7 @@ namespace Asseco\Inbox\Http\Requests;
 
 use Illuminate\Support\Facades\Validator;
 
-class PostmarkRequest extends InboxRequest
+class PostmarkRequest extends EmailRequest
 {
     public function validator()
     {
