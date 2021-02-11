@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox\Concerns;
+namespace Asseco\Mailbox\Concerns;
 
 trait HandlesParameters
 {
     public function parametersWithoutNulls(): array
     {
         return array_filter($this->parameters(), function ($p) {
-            return ! is_null($p);
+            return !is_null($p);
         });
     }
 

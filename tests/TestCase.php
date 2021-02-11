@@ -1,17 +1,17 @@
 <?php
 
-namespace BeyondCode\Mailbox\Tests;
+namespace Asseco\Mailbox\Tests;
 
-use BeyondCode\Mailbox\Facades\MailboxGroup;
-use BeyondCode\Mailbox\InboundEmail;
-use BeyondCode\Mailbox\MailboxServiceProvider;
+use Asseco\Mailbox\Facades\MailboxGroup;
+use Asseco\Mailbox\InboundEmail;
+use Asseco\Mailbox\InboxServiceProvider;
 use Illuminate\Mail\Events\MessageSent;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
     protected function getPackageProviders($app)
     {
-        return [MailboxServiceProvider::class];
+        return [InboxServiceProvider::class];
     }
 
     protected function getEnvironmentSetUp($app)

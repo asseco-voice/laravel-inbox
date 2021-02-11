@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox\Http\Middleware;
+namespace Asseco\Mailbox\Http\Middleware;
 
 use Closure;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;

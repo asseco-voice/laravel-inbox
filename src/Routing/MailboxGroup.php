@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox\Routing;
+namespace Asseco\Mailbox\Routing;
 
-use BeyondCode\Mailbox\InboundEmail;
+use Asseco\Mailbox\InboundEmail;
 use Exception;
 
 class MailboxGroup
@@ -37,44 +37,25 @@ class MailboxGroup
         foreach ($mailboxes as $mailbox) {
             $matched = $mailbox->run($email);
 
-            if (! $matched) {
+            if (!$matched) {
                 continue;
             }
 
-            $matchedAny = true;
-
-            if (! $this->continuousMatching) {
+            if (!$this->continuousMatching) {
                 break;
             }
         }
 
-        if (! $matchedAny && $this->fallback !== null) {
+        if (!$matchedAny && $this->fallback !== null) {
             $this->fallback->run($email);
-            $matchedAny = true;
         }
-
-        if ($this->shouldStoreInboundEmails() && $this->shouldStoreAllInboundEmails($matchedAny)) {
-            $this->storeEmail($email);
-        }
-    }
-
-    protected function shouldStoreInboundEmails(): bool
-    {
-        return config('mailbox.store_incoming_emails_for_days') > 0;
-    }
-
-    protected function shouldStoreAllInboundEmails(bool $matched): bool
-    {
-        return $matched ? true : ! config('mailbox.only_store_matching_emails');
-    }
-
-    protected function storeEmail(InboundEmail $email)
-    {
-        $email->save();
     }
 
     public function fallback($action): self
     {
+        /**
+         * @var Mailbox $mailbox
+         */
         $mailbox = app(Mailbox::class);
         $mailbox->action($action);
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox\Routing;
+namespace Asseco\Mailbox\Routing;
 
 use Exception;
 
@@ -17,6 +17,12 @@ class Pattern
     public string $matchBy;
     public string $regex;
 
+    /**
+     * Pattern constructor.
+     * @param string $matchBy
+     * @param string $regex
+     * @throws Exception
+     */
     public function __construct(string $matchBy, string $regex)
     {
         if (! in_array($matchBy, [self::FROM, self::TO, self::CC, self::BCC, self::SUBJECT])) {

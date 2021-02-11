@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox\Facades;
+namespace Asseco\Mailbox\Facades;
 
-use BeyondCode\Mailbox\InboundEmail;
-use BeyondCode\Mailbox\Routing\Mailbox;
+use Asseco\Mailbox\InboundEmail;
+use Asseco\Mailbox\Routing\Mailbox;
 use Illuminate\Support\Facades\Facade;
 
 /**

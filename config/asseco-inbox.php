@@ -1,6 +1,6 @@
 <?php
 
-use BeyondCode\Mailbox\InboundEmail;
+use Asseco\Mailbox\InboundEmail;
 
 return [
 
@@ -8,22 +8,7 @@ return [
      * The model class to use when converting an incoming email to a message.
      * It must extend the default model class
      */
-    'model' => InboundEmail::class,
-
-    /*
-     * The amount of days that incoming emails should be stored in your
-     * application. You can use the cleanup artisan command to
-     * delete all older inbound emails on a regular basis.
-     * Set to INF to disable the cleanup artisan command.
-     */
-    'store_incoming_emails_for_days' => 7,
-
-    /*
-     * By default, this package only stores incoming email messages
-     * when they match one of your mailboxes. To store all incoming
-     * messages, modify this value.
-     */
-    'only_store_matching_emails' => true,
+    'model'      => InboundEmail::class,
 
     /*
      * Some services do not have their own authentication methods to
@@ -42,7 +27,7 @@ return [
     /*
      * Third party service configuration.
      */
-    'services' => [
+    'services'   => [
 
         'mailgun' => [
             'key' => env('MAILBOX_MAILGUN_KEY'),

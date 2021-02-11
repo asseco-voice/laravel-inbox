@@ -1,9 +1,9 @@
 <?php
 
-namespace BeyondCode\Mailbox\Tests\Controllers;
+namespace Asseco\Mailbox\Tests\Controllers;
 
-use BeyondCode\Mailbox\Http\Controllers\PostmarkController;
-use BeyondCode\Mailbox\Tests\TestCase;
+use Asseco\Mailbox\Http\Controllers\PostmarkController;
+use Asseco\Mailbox\Tests\TestCase;
 use Illuminate\Support\Facades\Route;
 
 class PostmarkTest extends TestCase

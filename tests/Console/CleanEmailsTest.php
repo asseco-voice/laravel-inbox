@@ -1,10 +1,10 @@
 <?php
 
-namespace BeyondCode\Mailbox\Tests\Console;
+namespace Asseco\Mailbox\Tests\Console;
 
 use Artisan;
-use BeyondCode\Mailbox\InboundEmail;
-use BeyondCode\Mailbox\Tests\TestCase;
+use Asseco\Mailbox\InboundEmail;
+use Asseco\Mailbox\Tests\TestCase;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;

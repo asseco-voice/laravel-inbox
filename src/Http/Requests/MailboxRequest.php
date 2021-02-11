@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox\Http\Requests;
+namespace Asseco\Mailbox\Http\Requests;
 
-use BeyondCode\Mailbox\InboundEmail;
+use Asseco\Mailbox\InboundEmail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Validator;
 

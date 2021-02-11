@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox\Routing;
+namespace Asseco\Mailbox\Routing;
 
-use BeyondCode\Mailbox\Concerns\HandlesParameters;
-use BeyondCode\Mailbox\Concerns\HandlesRegularExpressions;
-use BeyondCode\Mailbox\InboundEmail;
+use Asseco\Mailbox\Concerns\HandlesParameters;
+use Asseco\Mailbox\Concerns\HandlesRegularExpressions;
+use Asseco\Mailbox\InboundEmail;
 use Exception;
 use Illuminate\Routing\RouteDependencyResolverTrait;
 use Illuminate\Support\Collection;

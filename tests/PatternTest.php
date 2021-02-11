@@ -1,10 +1,10 @@
 <?php
 
-namespace BeyondCode\Mailbox\Tests;
+namespace Asseco\Mailbox\Tests;
 
-use BeyondCode\Mailbox\Facades\MailboxGroup;
-use BeyondCode\Mailbox\InboundEmail;
-use BeyondCode\Mailbox\Routing\Mailbox;
+use Asseco\Mailbox\Facades\MailboxGroup;
+use Asseco\Mailbox\InboundEmail;
+use Asseco\Mailbox\Routing\Mailbox;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 

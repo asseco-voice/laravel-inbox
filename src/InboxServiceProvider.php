@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace BeyondCode\Mailbox;
+namespace Asseco\Mailbox;
 
-use BeyondCode\Mailbox\Http\Middleware\MailboxBasicAuthentication;
-use BeyondCode\Mailbox\Routing\Mailbox;
-use BeyondCode\Mailbox\Routing\MailboxGroup;
+use Asseco\Mailbox\Http\Middleware\MailboxBasicAuthentication;
+use Asseco\Mailbox\Routing\Mailbox;
+use Asseco\Mailbox\Routing\MailboxGroup;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
-class MailboxServiceProvider extends ServiceProvider
+class InboxServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
