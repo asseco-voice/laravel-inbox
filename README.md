@@ -5,7 +5,7 @@
 Purpose of this package is to provide pattern matching for incoming 
 communication and executing custom callbacks if they match.
 
-Credits to [BeyondCode](https://github.com/beyondcode/laravel-mailbox) for
+Credits to [BeyondCode](https://github.com/beyondcode/laravel-mailbox) for the
 initial codebase. The idea for this package later on substantially diverged 
 from the original, leaving no alternative than to separate it as a new package.
 
@@ -14,7 +14,7 @@ from the original, leaving no alternative than to separate it as a new package.
 Require the package with ``composer require asseco-voice/laravel-inbox``.
 Service provider will be registered automatically.
 
-## Concept
+## Usage
 
 ``Inbox`` is the main entity of the package providing a fluent API to 
 define set of patterns to match and how they interconnect, together 
@@ -79,7 +79,7 @@ in case of using the same method (i.e. ``from()``), be sure to use `matchEither(
 so that ``OR`` matching is triggered. 
 
 ```php
-$mailbox
+$inbox
     ->from('{pattern}@gmail.com')
     ->from('your.name@{provider}')
     ->where('pattern', '[A-Z]+')
