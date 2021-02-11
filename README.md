@@ -94,17 +94,24 @@ of `0`. The bigger the number, the sooner it is executed.
 
 Group example:
 ```php
-$group = new InboxGroup(); 
+public function receiveEmail($email){
 
-$group
-    ->add($inbox)
-    ->add($inbox2)
-    ->add($inbox3) 
-    ->fallback(function (InboundEmail $email) {
-        Log::info("Fell back");
-    })
-    ->continuousMatching()
-    ->run($email);
+    $inbox1 = ...;
+    $inbox2 = ...;
+    $inbox3 = ...;
+
+    $group = new InboxGroup(); 
+    
+    $group
+        ->add($inbox1)
+        ->add($inbox2)
+        ->add($inbox3) 
+        ->fallback(function (InboundEmail $email) {
+            Log::info("Fell back");
+        })
+        ->continuousMatching()
+        ->run($email);
+}
 ```
 
 You can define a fallback on your `InboxGroup` so that if none of the inboxes match, 
@@ -114,3 +121,17 @@ Inboxes will, by default, stop at first match. Meaning, if out
 of 5 inboxes, second one matches the incoming mail, execution will stop. This can 
 be overridden including the `continuousMatching()` function which will run 
 through all inboxes. So if match is found in 3/5 inboxes, those 3 callbacks will be executed. 
+
+If you don't want to use groups, but a single inbox, you can call run method on it directly:
+
+```php
+public function receiveEmail($email){
+
+    $inbox = new Inbox();
+    
+    $inbox
+        ->...
+        ->...
+        ->run($email);
+}
+```
