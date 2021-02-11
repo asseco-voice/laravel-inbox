@@ -2,46 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox;
+namespace Asseco\Inbox;
 
-use Asseco\Mailbox\Http\Middleware\MailboxBasicAuthentication;
-use Asseco\Mailbox\Routing\Mailbox;
-use Asseco\Mailbox\Routing\MailboxGroup;
+use Asseco\Inbox\Http\Middleware\MailboxBasicAuthentication;
+use Asseco\Inbox\Routing\Inbox;
+use Asseco\Inbox\Routing\InboxGroup;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class InboxServiceProvider extends ServiceProvider
 {
     /**
-     * Bootstrap the application services.
-     */
-    public function boot()
-    {
-        if (! class_exists('CreateMailboxInboundEmailsTable')) {
-            $this->publishes([
-                __DIR__.'/../database/migrations/create_mailbox_inbound_emails_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_mailbox_inbound_emails_table.php'),
-            ], 'migrations');
-        }
-
-        $this->publishes([
-            __DIR__.'/../config/mailbox.php' => config_path('mailbox.php'),
-        ], 'config');
-
-        Route::aliasMiddleware('laravel-mailbox-auth', MailboxBasicAuthentication::class);
-
-        $this->commands([
-            Console\CleanEmails::class,
-        ]);
-    }
-
-    /**
      * Register the application services.
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/mailbox.php', 'mailbox');
+        $this->mergeConfigFrom(__DIR__ . '/../config/asseco-inbox.php', 'asseco-inbox');
 
-        $this->app->bind(Mailbox::class);
-        $this->app->singleton('mailbox-group', MailboxGroup::class);
+        $this->app->bind(Inbox::class);
+        $this->app->singleton('inbox-group', InboxGroup::class);
+    }
+
+    /**
+     * Bootstrap the application services.
+     */
+    public function boot()
+    {
+        $this->publishes([__DIR__ . '/../config/asseco-inbox.php' => config_path('asseco-inbox.php')]);
+
+        Route::aliasMiddleware('laravel-mailbox-auth', MailboxBasicAuthentication::class);
     }
 }

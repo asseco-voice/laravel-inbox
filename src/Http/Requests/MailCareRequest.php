@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Http\Requests;
+namespace Asseco\Inbox\Http\Requests;
 
-class MailCareRequest extends MailboxRequest
+class MailCareRequest extends InboxRequest
 {
 }

@@ -1,10 +1,11 @@
 <?php
 
-namespace Asseco\Mailbox\Tests;
+namespace Asseco\Inbox\Tests\Unit;
 
-use Asseco\Mailbox\Facades\MailboxGroup;
-use Asseco\Mailbox\InboundEmail;
-use Asseco\Mailbox\Routing\Mailbox;
+use Asseco\Inbox\Facades\InboxGroup;
+use Asseco\Inbox\InboundEmail;
+use Asseco\Inbox\Routing\Inbox;
+use Asseco\Inbox\Tests\TestCase;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
@@ -24,19 +25,19 @@ class InboundEmailTest extends TestCase
         $modelClass = config('mailbox.model');
         $email = $modelClass::fromMessage($event->message);
 
-        MailboxGroup::run($email);
+        InboxGroup::run($email);
     }
 
     /** @test */
     public function it_catches_logged_mails()
     {
-        $mailbox = (new Mailbox())->from('{name}@beyondco.de')->action(function (InboundEmail $email, $name) {
+        $inbox = (new Inbox())->from('{name}@beyondco.de')->action(function (InboundEmail $email, $name) {
             $this->assertSame($name, 'example');
             $this->assertSame($email->from(), 'example@beyondco.de');
             $this->assertSame($email->subject(), 'This is a subject');
         });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new TestMail);
     }
@@ -44,12 +45,12 @@ class InboundEmailTest extends TestCase
     /** @test */
     public function it_stores_inbound_emails()
     {
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->to('someone@beyondco.de')
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new TestMail);
         Mail::to('someone-else@beyondco.de')->send(new TestMail);
@@ -62,12 +63,12 @@ class InboundEmailTest extends TestCase
     {
         config()->set('mailbox.only_store_matching_emails', false);
 
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->to('someone@beyondco.de')
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new TestMail);
         Mail::to('someone-else@beyondco.de')->send(new TestMail);
@@ -78,7 +79,7 @@ class InboundEmailTest extends TestCase
     /** @test */
     public function it_can_use_fallbacks()
     {
-        MailboxGroup::fallback(function (InboundEmail $email) {
+        InboxGroup::fallback(function (InboundEmail $email) {
             Mail::fake();
 
             $email->reply(new ReplyMail);
@@ -92,7 +93,7 @@ class InboundEmailTest extends TestCase
     /** @test */
     public function it_stores_inbound_emails_with_fallback()
     {
-        MailboxGroup::fallback(function ($email) {
+        InboxGroup::fallback(function ($email) {
         });
 
         Mail::to('someone@beyondco.de')->send(new TestMail);
@@ -106,12 +107,12 @@ class InboundEmailTest extends TestCase
     {
         $this->app['config']['mailbox.store_incoming_emails_for_days'] = 0;
 
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->from('example@beyondco.de')
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new TestMail);
         Mail::to('someone@beyondco.de')->send(new TestMail);
@@ -122,7 +123,7 @@ class InboundEmailTest extends TestCase
     /** @test */
     public function it_can_reply_to_mails()
     {
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->from('example@beyondco.de')
             ->action(function (InboundEmail $email) {
                 Mail::fake();
@@ -130,7 +131,7 @@ class InboundEmailTest extends TestCase
                 $email->reply(new ReplyMail);
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new TestMail);
 
@@ -142,11 +143,11 @@ class InboundEmailTest extends TestCase
     {
         $this->app['config']['mailbox.model'] = ExtendedInboundEmail::class;
 
-        $mailbox = (new Mailbox())->from('example@beyondco.de')->action(function ($email) {
+        $inbox = (new Inbox())->from('example@beyondco.de')->action(function ($email) {
             $this->assertInstanceOf(ExtendedInboundEmail::class, $email);
         });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new TestMail);
     }

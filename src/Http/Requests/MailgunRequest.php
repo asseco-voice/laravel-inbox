@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Http\Requests;
+namespace Asseco\Inbox\Http\Requests;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
-class MailgunRequest extends MailboxRequest
+class MailgunRequest extends InboxRequest
 {
     public function validator()
     {
@@ -29,7 +29,7 @@ class MailgunRequest extends MailboxRequest
     {
         $data = $this->request->get('timestamp').$this->request->get('token');
 
-        $signature = hash_hmac('sha256', $data, config('mailbox.services.mailgun.key') ?: '');
+        $signature = hash_hmac('sha256', $data, config('asseco-inbox.services.mailgun.key') ?: '');
 
         $signed = hash_equals($this->request->get('signature'), $signature);
 

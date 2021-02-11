@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Http\Requests;
+namespace Asseco\Inbox\Http\Requests;
 
-use Asseco\Mailbox\InboundEmail;
+use Asseco\Inbox\InboundEmail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Validator;
 
-class MailboxRequest extends FormRequest
+class InboxRequest extends FormRequest
 {
     public function validator()
     {
@@ -20,7 +20,7 @@ class MailboxRequest extends FormRequest
     public function email(): InboundEmail
     {
         /** @var InboundEmail $modelClass */
-        $modelClass = config('mailbox.model');
+        $modelClass = config('asseco-inbox.model');
 
         return $modelClass::fromMessage($this->get('email'));
     }

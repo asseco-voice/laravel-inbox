@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Http\Requests;
+namespace Asseco\Inbox\Http\Requests;
 
-class SendGridRequest extends MailboxRequest
+class SendGridRequest extends InboxRequest
 {
 }

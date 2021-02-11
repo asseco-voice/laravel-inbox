@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Routing;
+namespace Asseco\Inbox\Routing;
 
 use Exception;
 
@@ -13,6 +13,14 @@ class Pattern
     const CC = 'cc';
     const BCC = 'bcc';
     const SUBJECT = 'subject';
+
+    public array $matchFunctions = [
+        self::FROM,
+        self::TO,
+        self::CC,
+        self::BCC,
+        self::SUBJECT,
+    ];
 
     public string $matchBy;
     public string $regex;
@@ -25,8 +33,8 @@ class Pattern
      */
     public function __construct(string $matchBy, string $regex)
     {
-        if (! in_array($matchBy, [self::FROM, self::TO, self::CC, self::BCC, self::SUBJECT])) {
-            throw new Exception('Invalid matchBy parameter.');
+        if (!in_array($matchBy, $this->matchFunctions)) {
+            throw new Exception("Invalid matchBy parameter: $matchBy");
         }
 
         $this->matchBy = $matchBy;

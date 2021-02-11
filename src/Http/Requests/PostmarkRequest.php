@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Http\Requests;
+namespace Asseco\Inbox\Http\Requests;
 
 use Illuminate\Support\Facades\Validator;
 
-class PostmarkRequest extends MailboxRequest
+class PostmarkRequest extends InboxRequest
 {
     public function validator()
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox;
+namespace Asseco\Inbox;
 
 use Carbon\Carbon;
 use EmailReplyParser\EmailReplyParser;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Concerns;
+namespace Asseco\Inbox\Traits;
 
 trait HandlesParameters
 {

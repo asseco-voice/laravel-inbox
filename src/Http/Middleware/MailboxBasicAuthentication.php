@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Http\Middleware;
+namespace Asseco\Inbox\Http\Middleware;
 
 use Closure;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -14,7 +14,7 @@ class MailboxBasicAuthentication
         $user = $request->getUser();
         $password = $request->getPassword();
 
-        if (($user === config('mailbox.basic_auth.username') && $password === config('mailbox.basic_auth.password'))) {
+        if (($user === config('asseco-inbox.basic_auth.username') && $password === config('asseco-inbox.basic_auth.password'))) {
             return $next($request);
         }
 

@@ -1,6 +1,6 @@
 <?php
 
-use Asseco\Mailbox\InboundEmail;
+use Asseco\Inbox\InboundEmail;
 
 return [
 

@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Routing;
+namespace Asseco\Inbox\Routing;
 
-use Asseco\Mailbox\InboundEmail;
+use Asseco\Inbox\InboundEmail;
 use Exception;
 
-class MailboxGroup
+class InboxGroup
 {
-    protected array $mailboxes = [];
+    protected array $inboxes = [];
 
     protected bool $continuousMatching = false;
 
-    protected ?Mailbox $fallback = null;
+    protected ?Inbox $fallback = null;
 
-    public function add(Mailbox $mailbox): self
+    public function add(Inbox $inbox): self
     {
-        $this->mailboxes[] = $mailbox;
+        $this->inboxes[] = $inbox;
 
         return $this;
     }
@@ -29,13 +29,13 @@ class MailboxGroup
     public function run(InboundEmail $email): void
     {
         $matchedAny = false;
-        $mailboxes = collect($this->mailboxes)->sortByDesc('priority');
+        $inboxes = collect($this->inboxes)->sortByDesc('priority');
 
         /**
-         * @var $mailbox Mailbox
+         * @var $inbox Inbox
          */
-        foreach ($mailboxes as $mailbox) {
-            $matched = $mailbox->run($email);
+        foreach ($inboxes as $inbox) {
+            $matched = $inbox->run($email);
 
             if (!$matched) {
                 continue;
@@ -54,12 +54,12 @@ class MailboxGroup
     public function fallback($action): self
     {
         /**
-         * @var Mailbox $mailbox
+         * @var Inbox $inbox
          */
-        $mailbox = app(Mailbox::class);
-        $mailbox->action($action);
+        $inbox = app(Inbox::class);
+        $inbox->action($action);
 
-        $this->fallback = $mailbox;
+        $this->fallback = $inbox;
 
         return $this;
     }

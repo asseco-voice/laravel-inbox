@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Mailbox\Routing;
+namespace Asseco\Inbox\Routing;
 
-use Asseco\Mailbox\Concerns\HandlesParameters;
-use Asseco\Mailbox\Concerns\HandlesRegularExpressions;
-use Asseco\Mailbox\InboundEmail;
+use Asseco\Inbox\Traits\HandlesParameters;
+use Asseco\Inbox\Traits\HandlesRegularExpressions;
+use Asseco\Inbox\InboundEmail;
 use Exception;
 use Illuminate\Routing\RouteDependencyResolverTrait;
 use Illuminate\Support\Collection;
@@ -15,7 +15,7 @@ use Illuminate\Support\Traits\ForwardsCalls;
 use ReflectionFunction;
 use ZBateson\MailMimeParser\Header\Part\AddressPart;
 
-class Mailbox
+class Inbox
 {
     use HandlesParameters,
         HandlesRegularExpressions,
@@ -97,11 +97,11 @@ class Mailbox
 
     public function run(InboundEmail $email): bool
     {
-        if (! $email->isValid()) {
+        if (!$email->isValid()) {
             throw new Exception('Mail is not valid.');
         }
 
-        if (! $this->matchFound($email)) {
+        if (!$this->matchFound($email)) {
             return false;
         }
 
@@ -171,8 +171,8 @@ class Mailbox
 
     protected function isCallable(): bool
     {
-        if (! $this->action) {
-            throw new Exception('Mailbox needs to have an action defined.');
+        if (!$this->action) {
+            throw new Exception('Inbox needs to have an action defined.');
         }
 
         return is_callable($this->action);
@@ -191,29 +191,29 @@ class Mailbox
 
     protected function runClass(InboundEmail $email)
     {
-        $method = $this->getMailboxMethod();
-        $mailbox = $this->getMailbox();
+        $method = $this->getInboxMethod();
+        $inbox = $this->getInbox();
 
         $parameters = $this->resolveClassMethodDependencies(
-            [$email] + $this->parametersWithoutNulls(), $mailbox, $method
+            [$email] + $this->parametersWithoutNulls(), $inbox, $method
         );
 
-        return $mailbox->{$method}(...array_values($parameters));
+        return $inbox->{$method}(...array_values($parameters));
     }
 
-    protected function getMailbox(): Mailbox
+    protected function getInbox(): Inbox
     {
-        $class = $this->parseMailboxCallback()[0];
+        $class = $this->parseInboxCallback()[0];
 
         return app()->make(ltrim($class, '\\'));
     }
 
-    protected function getMailboxMethod(): string
+    protected function getInboxMethod(): string
     {
-        return $this->parseMailboxCallback()[1] ?? '__invoke';
+        return $this->parseInboxCallback()[1] ?? '__invoke';
     }
 
-    protected function parseMailboxCallback(): array
+    protected function parseInboxCallback(): array
     {
         return Str::parseCallback($this->action);
     }

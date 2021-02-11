@@ -1,10 +1,11 @@
 <?php
 
-namespace Asseco\Mailbox\Tests;
+namespace Asseco\Inbox\Tests\Unit;
 
-use Asseco\Mailbox\Facades\MailboxGroup;
-use Asseco\Mailbox\InboundEmail;
-use Asseco\Mailbox\Routing\Mailbox;
+use Asseco\Inbox\Facades\InboxGroup;
+use Asseco\Inbox\InboundEmail;
+use Asseco\Inbox\Routing\Inbox;
+use Asseco\Inbox\Tests\TestCase;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 
@@ -20,13 +21,13 @@ class PatternTest extends TestCase
     /** @test */
     public function it_matches_from_pattern()
     {
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->to('{pattern}@beyondco.de')
             ->where('pattern', '.*')
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new PatternTestMail);
         Mail::to('someone-else@beyondco.de')->send(new PatternTestMail);
@@ -37,13 +38,13 @@ class PatternTest extends TestCase
     /** @test */
     public function it_rejects_wrong_pattern()
     {
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->to('{pattern}@beyondco.de')
             ->where('pattern', '[a-z]+')
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('123@beyondco.de')->send(new PatternTestMail);
         Mail::to('456@beyondco.de')->send(new PatternTestMail);
@@ -54,14 +55,14 @@ class PatternTest extends TestCase
     /** @test */
     public function it_matches_multiple_one_line_patterns()
     {
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->to('{username}@{provider}')
             ->where('username', '[a-z]+')
             ->where('provider', 'beyondco.de')
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new PatternTestMail);
         Mail::to('someone-else@gmail.com')->send(new PatternTestMail);
@@ -72,14 +73,14 @@ class PatternTest extends TestCase
     /** @test */
     public function it_matches_multiple_patterns()
     {
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->from('{pattern}@beyondco.de')
             ->to('{pattern}@beyondco.de')
             ->where('pattern', '[a-z]+')
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new PatternTestMail);
         Mail::to('someone-else@beyondco.de')->send(new PatternTestMail);
@@ -90,7 +91,7 @@ class PatternTest extends TestCase
     /** @test */
     public function it_matches_at_least_one_pattern()
     {
-        $mailbox = (new Mailbox())
+        $inbox = (new Inbox())
             ->from('{pattern}@beyondco.de')
             ->to('someone@{provider}.com')
             ->where('pattern', '[a-z]+')
@@ -99,7 +100,7 @@ class PatternTest extends TestCase
             ->action(function ($email) {
             });
 
-        MailboxGroup::add($mailbox);
+        InboxGroup::add($inbox);
 
         Mail::to('someone@beyondco.de')->send(new PatternTestMail);
         Mail::to('someone-else@gmail.com')->send(new PatternTestMail);
