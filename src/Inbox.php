@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox;
 
+use Asseco\Inbox\Contracts\Message;
 use Asseco\Inbox\Traits\HandlesParameters;
 use Asseco\Inbox\Traits\HandlesRegularExpressions;
 use Exception;
@@ -12,7 +13,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use ReflectionFunction;
-use ZBateson\MailMimeParser\Header\Part\AddressPart;
 
 class Inbox
 {
@@ -94,61 +94,38 @@ class Inbox
         return $this;
     }
 
-    public function run(InboundEmail $email): bool
+    public function run(Message $message): bool
     {
-        if (!$email->isValid()) {
-            throw new Exception('Mail is not valid.');
+        if (!$message->isValid()) {
+            throw new Exception('Message invalid.');
         }
 
-        if (!$this->matchFound($email)) {
+        if (!$this->matchFound($message)) {
             return false;
         }
 
-        $this->isCallable() ? $this->runCallable($email) : $this->runClass($email);
+        $this->isCallable() ?
+            $this->runCallable($message) : $this->runClass($message);
 
         return true;
     }
 
-    protected function matchFound(InboundEmail $message): bool
+    protected function matchFound(Message $message): bool
     {
         $matchedPatterns = $this->filterPatterns($message);
 
         return $this->matchEither ?
-            $this->isPartialMatch($matchedPatterns) : $this->isFullMatch($matchedPatterns);
+            $this->isPartialMatch($matchedPatterns) :
+            $this->isFullMatch($matchedPatterns);
     }
 
-    protected function filterPatterns(InboundEmail $message): Collection
+    protected function filterPatterns(Message $message): Collection
     {
         return collect($this->patterns)->filter(function (Pattern $pattern) use ($message) {
-            $matchedValues = $this->getMatchedValues($message, $pattern->matchBy);
+            $matchedValues = $message->getMatchedValues($pattern->matchBy);
 
             return $this->valueMatchesRegex($matchedValues, $pattern->regex) !== null;
         });
-    }
-
-    protected function getMatchedValues(InboundEmail $message, string $matchBy): array
-    {
-        switch ($matchBy) {
-            case Pattern::FROM:
-                return [$message->from()];
-            case Pattern::TO:
-                return $this->convertMessageAddresses($message->to());
-            case Pattern::CC:
-                return $this->convertMessageAddresses($message->cc());
-            case Pattern::BCC:
-                return $this->convertMessageAddresses($message->bcc());
-            case Pattern::SUBJECT:
-                return [$message->subject()];
-            default:
-                return [];
-        }
-    }
-
-    protected function convertMessageAddresses($addresses): array
-    {
-        return collect($addresses)->map(function (AddressPart $address) {
-            return $address->getEmail();
-        })->toArray();
     }
 
     protected function valueMatchesRegex(array $matchValues, string $regex): ?string
@@ -177,7 +154,7 @@ class Inbox
         return is_callable($this->action);
     }
 
-    protected function runCallable(InboundEmail $email)
+    protected function runCallable(Message $email)
     {
         $callable = $this->action;
 
@@ -188,7 +165,7 @@ class Inbox
         return $callable(...array_values($parameters));
     }
 
-    protected function runClass(InboundEmail $email)
+    protected function runClass(Message $email)
     {
         $method = $this->getInboxMethod();
         $inbox = $this->getInbox();

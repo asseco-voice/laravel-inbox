@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox;
 
+use Asseco\Inbox\Contracts\Message;
 use Exception;
 
 class InboxGroup
@@ -22,10 +23,10 @@ class InboxGroup
     }
 
     /**
-     * @param InboundEmail $email
+     * @param Message $message
      * @throws Exception
      */
-    public function run(InboundEmail $email): void
+    public function run(Message $message): void
     {
         $matchedAny = false;
         $inboxes = collect($this->inboxes)->sortByDesc('priority');
@@ -34,7 +35,7 @@ class InboxGroup
          * @var $inbox Inbox
          */
         foreach ($inboxes as $inbox) {
-            $matched = $inbox->run($email);
+            $matched = $inbox->run($message);
 
             if (!$matched) {
                 continue;
@@ -46,7 +47,7 @@ class InboxGroup
         }
 
         if (!$matchedAny && $this->fallback !== null) {
-            $this->fallback->run($email);
+            $this->fallback->run($message);
         }
     }
 

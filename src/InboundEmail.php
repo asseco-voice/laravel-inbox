@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox;
 
+use Asseco\Inbox\Contracts\Message;
 use Carbon\Carbon;
 use EmailReplyParser\EmailReplyParser;
 use Illuminate\Contracts\Mail\Mailable;
@@ -15,7 +16,7 @@ use ZBateson\MailMimeParser\Header\Part\AddressPart;
 use ZBateson\MailMimeParser\Message as MimeMessage;
 use ZBateson\MailMimeParser\Message\Part\MessagePart;
 
-class InboundEmail extends Model
+class InboundEmail extends Model implements Message
 {
     protected $table = 'mailbox_inbound_emails';
 
@@ -185,5 +186,30 @@ class InboundEmail extends Model
     public function isValid(): bool
     {
         return $this->from() !== '' && ($this->isText() || $this->isHtml());
+    }
+
+    public function getMatchedValues(string $matchBy): array
+    {
+        switch ($matchBy) {
+            case Pattern::FROM:
+                return [$this->from()];
+            case Pattern::TO:
+                return $this->convertMessageAddresses($this->to());
+            case Pattern::CC:
+                return $this->convertMessageAddresses($this->cc());
+            case Pattern::BCC:
+                return $this->convertMessageAddresses($this->bcc());
+            case Pattern::SUBJECT:
+                return [$this->subject()];
+            default:
+                return [];
+        }
+    }
+
+    protected function convertMessageAddresses($addresses): array
+    {
+        return collect($addresses)->map(function (AddressPart $address) {
+            return $address->getEmail();
+        })->toArray();
     }
 }
