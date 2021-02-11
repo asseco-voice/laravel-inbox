@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox\Tests\Feature;
 
+use Asseco\Inbox\Contracts\Message;
 use Asseco\Inbox\Facades\InboxGroup;
-use Asseco\Inbox\InboundEmail;
 use Asseco\Inbox\Inbox;
-use Asseco\Inbox\Tests\PatternTestMail;
 use Asseco\Inbox\Tests\TestCase;
+use Asseco\Inbox\Tests\TestMail;
 use Illuminate\Support\Facades\Mail;
 
 class InboxTest extends TestCase
@@ -28,13 +28,13 @@ class InboxTest extends TestCase
         $this->inbox
             ->to('{pattern}@asseco-see.hr')
             ->where('pattern', '.*')
-            ->action(function (InboundEmail $email) {
+            ->action(function (Message $email) {
                 $this->assertEquals(['someone@asseco-see.hr'], $email->to());
             });
 
         InboxGroup::add($this->inbox);
 
-        Mail::to('someone@asseco-see.hr')->send(new PatternTestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
     /** @test */
@@ -48,8 +48,8 @@ class InboxTest extends TestCase
 
         InboxGroup::add($this->inbox);
 
-        Mail::to('123@asseco-see.hr')->send(new PatternTestMail);
-        Mail::to('456@asseco-see.hr')->send(new PatternTestMail);
+        Mail::to('123@asseco-see.hr')->send(new TestMail);
+        Mail::to('456@asseco-see.hr')->send(new TestMail);
 
         $this->assertTrue(true);
     }
@@ -67,7 +67,7 @@ class InboxTest extends TestCase
 
         InboxGroup::add($this->inbox);
 
-        Mail::to('someone@asseco-see.hr')->send(new PatternTestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
     /** @test */
@@ -83,7 +83,7 @@ class InboxTest extends TestCase
 
         InboxGroup::add($this->inbox);
 
-        Mail::to('someone@asseco-see.hr')->send(new PatternTestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
     /** @test */
@@ -101,6 +101,6 @@ class InboxTest extends TestCase
 
         InboxGroup::add($this->inbox);
 
-        Mail::to('someone@asseco-see.hr')->send(new PatternTestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 }

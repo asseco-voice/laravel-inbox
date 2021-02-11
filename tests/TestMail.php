@@ -4,7 +4,7 @@ namespace Asseco\Inbox\Tests;
 
 use Illuminate\Mail\Mailable;
 
-class PatternTestMail extends Mailable
+class TestMail extends Mailable
 {
     public function build()
     {
