@@ -33,9 +33,6 @@ class EmailRequest extends FormRequest
 
     public function email(): InboundEmail
     {
-        /** @var InboundEmail $modelClass */
-        $modelClass = config('asseco-inbox.model');
-
-        return $modelClass::fromMessage($this->get('email'));
+        return InboundEmail::fromMessage($this->get('email'));
     }
 }

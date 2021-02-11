@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox;
 
-use Asseco\Inbox\Http\Middleware\MailboxBasicAuthentication;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class InboxServiceProvider extends ServiceProvider
@@ -27,7 +25,5 @@ class InboxServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([__DIR__ . '/../config/asseco-inbox.php' => config_path('asseco-inbox.php')]);
-
-        Route::aliasMiddleware('laravel-mailbox-auth', MailboxBasicAuthentication::class);
     }
 }
