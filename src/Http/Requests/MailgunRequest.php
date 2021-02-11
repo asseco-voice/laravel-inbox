@@ -27,7 +27,7 @@ class MailgunRequest extends InboxRequest
 
     protected function verifySignature(): void
     {
-        $data = $this->request->get('timestamp').$this->request->get('token');
+        $data = $this->request->get('timestamp') . $this->request->get('token');
 
         $signature = hash_hmac('sha256', $data, config('asseco-inbox.services.mailgun.key') ?: '');
 
