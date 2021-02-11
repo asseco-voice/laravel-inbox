@@ -41,6 +41,8 @@ class InboxGroup
                 continue;
             }
 
+            $matchedAny = true;
+
             if (!$this->continuousMatching) {
                 break;
             }
