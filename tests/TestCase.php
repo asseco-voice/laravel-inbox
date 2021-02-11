@@ -14,8 +14,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        config(['mail.default' => 'log']);
     }
 
     protected function getPackageProviders($app)
@@ -25,7 +23,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function getEnvironmentSetUp($app)
     {
-        // perform environment setup
+        config(['mail.default' => 'log']);
+
         $this->catchLocalEmails();
     }
 
@@ -36,7 +35,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     public function processLog(MessageSent $event)
     {
-        /** @var InboundEmail $modelClass */
+        /**
+         * @var InboundEmail $modelClass
+         */
         $modelClass = config('asseco-inbox.model');
         $email = $modelClass::fromMessage($event->message);
 
