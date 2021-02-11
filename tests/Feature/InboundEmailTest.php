@@ -1,6 +1,6 @@
 <?php
 
-namespace Asseco\Inbox\Tests\Unit;
+namespace Asseco\Inbox\Tests\Feature;
 
 use Asseco\Inbox\Facades\InboxGroup;
 use Asseco\Inbox\InboundEmail;

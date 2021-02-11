@@ -14,6 +14,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        config(['mail.default' => 'log']);
     }
 
     protected function getPackageProviders($app)
