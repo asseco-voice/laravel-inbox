@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Inbox\Routing;
+namespace Asseco\Inbox;
 
-use Asseco\Inbox\InboundEmail;
 use Exception;
 
 class InboxGroup

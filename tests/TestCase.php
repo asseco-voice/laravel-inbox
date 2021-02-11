@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Asseco\Inbox\Tests;
 
 use Asseco\Inbox\Facades\InboxGroup;
@@ -9,6 +11,11 @@ use Illuminate\Mail\Events\MessageSent;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+    }
+
     protected function getPackageProviders($app)
     {
         return [InboxServiceProvider::class];
@@ -16,7 +23,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function getEnvironmentSetUp($app)
     {
-        //
+        // perform environment setup
+        $this->catchLocalEmails();
     }
 
     protected function catchLocalEmails()

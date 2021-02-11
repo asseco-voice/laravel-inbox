@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Inbox\Routing;
+namespace Asseco\Inbox;
 
 use Asseco\Inbox\Traits\HandlesParameters;
 use Asseco\Inbox\Traits\HandlesRegularExpressions;
-use Asseco\Inbox\InboundEmail;
 use Exception;
 use Illuminate\Routing\RouteDependencyResolverTrait;
 use Illuminate\Support\Collection;

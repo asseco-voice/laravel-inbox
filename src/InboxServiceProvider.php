@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Asseco\Inbox;
 
 use Asseco\Inbox\Http\Middleware\MailboxBasicAuthentication;
-use Asseco\Inbox\Routing\Inbox;
-use Asseco\Inbox\Routing\InboxGroup;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 

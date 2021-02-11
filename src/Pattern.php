@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Asseco\Inbox\Routing;
+namespace Asseco\Inbox;
 
 use Exception;
 

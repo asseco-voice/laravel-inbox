@@ -4,7 +4,7 @@ namespace Asseco\Inbox\Tests\Unit;
 
 use Asseco\Inbox\Facades\InboxGroup;
 use Asseco\Inbox\InboundEmail;
-use Asseco\Inbox\Routing\Inbox;
+use Asseco\Inbox\Inbox;
 use Asseco\Inbox\Tests\TestCase;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Mail\Mailable;
@@ -31,29 +31,29 @@ class InboundEmailTest extends TestCase
     /** @test */
     public function it_catches_logged_mails()
     {
-        $inbox = (new Inbox())->from('{name}@beyondco.de')->action(function (InboundEmail $email, $name) {
+        $inbox = (new Inbox())->from('{name}@asseco-see.hr')->action(function (InboundEmail $email, $name) {
             $this->assertSame($name, 'example');
-            $this->assertSame($email->from(), 'example@beyondco.de');
+            $this->assertSame($email->from(), 'example@asseco-see.hr');
             $this->assertSame($email->subject(), 'This is a subject');
         });
 
         InboxGroup::add($inbox);
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
     /** @test */
     public function it_stores_inbound_emails()
     {
         $inbox = (new Inbox())
-            ->to('someone@beyondco.de')
+            ->to('someone@asseco-see.hr')
             ->action(function ($email) {
             });
 
         InboxGroup::add($inbox);
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
-        Mail::to('someone-else@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
+        Mail::to('someone-else@asseco-see.hr')->send(new TestMail);
 
         $this->assertSame(1, InboundEmail::query()->count());
     }
@@ -64,14 +64,14 @@ class InboundEmailTest extends TestCase
         config()->set('mailbox.only_store_matching_emails', false);
 
         $inbox = (new Inbox())
-            ->to('someone@beyondco.de')
+            ->to('someone@asseco-see.hr')
             ->action(function ($email) {
             });
 
         InboxGroup::add($inbox);
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
-        Mail::to('someone-else@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
+        Mail::to('someone-else@asseco-see.hr')->send(new TestMail);
 
         $this->assertSame(2, InboundEmail::query()->count());
     }
@@ -85,7 +85,7 @@ class InboundEmailTest extends TestCase
             $email->reply(new ReplyMail);
         });
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
 
         Mail::assertSent(ReplyMail::class);
     }
@@ -96,8 +96,8 @@ class InboundEmailTest extends TestCase
         InboxGroup::fallback(function ($email) {
         });
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
-        Mail::to('someone-else@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
+        Mail::to('someone-else@asseco-see.hr')->send(new TestMail);
 
         $this->assertSame(2, InboundEmail::query()->count());
     }
@@ -108,14 +108,14 @@ class InboundEmailTest extends TestCase
         $this->app['config']['mailbox.store_incoming_emails_for_days'] = 0;
 
         $inbox = (new Inbox())
-            ->from('example@beyondco.de')
+            ->from('example@asseco-see.hr')
             ->action(function ($email) {
             });
 
         InboxGroup::add($inbox);
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
-        Mail::to('someone@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
 
         $this->assertSame(0, InboundEmail::query()->count());
     }
@@ -124,7 +124,7 @@ class InboundEmailTest extends TestCase
     public function it_can_reply_to_mails()
     {
         $inbox = (new Inbox())
-            ->from('example@beyondco.de')
+            ->from('example@asseco-see.hr')
             ->action(function (InboundEmail $email) {
                 Mail::fake();
 
@@ -133,7 +133,7 @@ class InboundEmailTest extends TestCase
 
         InboxGroup::add($inbox);
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
 
         Mail::assertSent(ReplyMail::class);
     }
@@ -143,13 +143,13 @@ class InboundEmailTest extends TestCase
     {
         $this->app['config']['mailbox.model'] = ExtendedInboundEmail::class;
 
-        $inbox = (new Inbox())->from('example@beyondco.de')->action(function ($email) {
+        $inbox = (new Inbox())->from('example@asseco-see.hr')->action(function ($email) {
             $this->assertInstanceOf(ExtendedInboundEmail::class, $email);
         });
 
         InboxGroup::add($inbox);
 
-        Mail::to('someone@beyondco.de')->send(new TestMail);
+        Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 }
 
@@ -157,7 +157,7 @@ class TestMail extends Mailable
 {
     public function build()
     {
-        $this->from('example@beyondco.de')
+        $this->from('example@asseco-see.hr')
             ->subject('This is a subject')
             ->html('<html>Example email content</html>');
     }
@@ -167,7 +167,7 @@ class ReplyMail extends Mailable
 {
     public function build()
     {
-        $this->from('marcel@beyondco.de')
+        $this->from('marcel@asseco-see.hr')
             ->subject('This is my reply')
             ->html('Hi!');
     }

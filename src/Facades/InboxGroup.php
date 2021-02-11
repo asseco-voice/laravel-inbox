@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Asseco\Inbox\Facades;
 
 use Asseco\Inbox\InboundEmail;
-use Asseco\Inbox\Routing\Inbox;
+use Asseco\Inbox\Inbox;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static self fallback($action)
  * @method static self continuousMatching()
  *
- * @see \Asseco\Inbox\Routing\InboxGroup
+ * @see \Asseco\Inbox\InboxGroup
  */
 class InboxGroup extends Facade
 {
