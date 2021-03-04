@@ -42,7 +42,6 @@ class InboundEmailTest extends TestCase
     {
         InboxGroup::fallback(function (Message $email) {
             Mail::fake();
-
             $email->reply(new ReplyMail);
         });
 
