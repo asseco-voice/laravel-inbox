@@ -35,11 +35,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     public function processLog(MessageSent $event)
     {
-        /**
-         * @var InboundEmail $modelClass
-         */
-        $modelClass = config('asseco-inbox.model');
-        $email = $modelClass::fromMessage($event->message);
+        $email = InboundEmail::fromMessage($event->message);
 
         InboxGroup::run($email);
     }
