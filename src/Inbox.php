@@ -154,24 +154,26 @@ class Inbox
         return is_callable($this->action);
     }
 
-    protected function runCallable(Message $email)
+    protected function runCallable(Message $message)
     {
         $callable = $this->action;
 
+        // This will force 'message' to be the first callback parameter.
+        // Whatever parameter is left will be attached after it.
         $parameters = $this->resolveMethodDependencies(
-            [$email] + $this->parametersWithoutNulls(), new ReflectionFunction($this->action)
+            [$message] + $this->parametersWithoutNulls(), new ReflectionFunction($this->action)
         );
 
         return $callable(...array_values($parameters));
     }
 
-    protected function runClass(Message $email)
+    protected function runClass(Message $message)
     {
         $method = $this->getInboxMethod();
         $inbox = $this->getInbox();
 
         $parameters = $this->resolveClassMethodDependencies(
-            [$email] + $this->parametersWithoutNulls(), $inbox, $method
+            [$message] + $this->parametersWithoutNulls(), $inbox, $method
         );
 
         return $inbox->{$method}(...array_values($parameters));

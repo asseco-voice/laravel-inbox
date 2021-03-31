@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Asseco\Inbox\Tests;
 
 use Illuminate\Mail\Mailable;
