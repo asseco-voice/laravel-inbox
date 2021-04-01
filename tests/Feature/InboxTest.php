@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox\Tests\Feature;
 
-use Asseco\Inbox\Contracts\Message;
+use Asseco\Inbox\Contracts\CanMatch;
 use Asseco\Inbox\Facades\InboxGroup;
 use Asseco\Inbox\Inbox;
 use Asseco\Inbox\Tests\TestCase;
@@ -28,7 +28,7 @@ class InboxTest extends TestCase
         $this->inbox
             ->to('{pattern}@asseco-see.hr')
             ->where('pattern', '.*')
-            ->action(function (Message $email) {
+            ->action(function (CanMatch $email) {
                 $this->assertEquals(['someone@asseco-see.hr'], $email->to());
             });
 

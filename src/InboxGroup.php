@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox;
 
-use Asseco\Inbox\Contracts\Message;
+use Asseco\Inbox\Contracts\CanMatch;
 use Exception;
 
 class InboxGroup
@@ -23,10 +23,10 @@ class InboxGroup
     }
 
     /**
-     * @param Message $message
+     * @param CanMatch $message
      * @throws Exception
      */
-    public function run(Message $message): void
+    public function run(CanMatch $message): void
     {
         $matchedAny = false;
         $inboxes = collect($this->inboxes)->sortByDesc('priority');

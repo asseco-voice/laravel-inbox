@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox\Facades;
 
-use Asseco\Inbox\Contracts\Message;
+use Asseco\Inbox\Contracts\CanMatch;
 use Asseco\Inbox\Inbox;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static void run(Message $message)
+ * @method static void run(CanMatch $message)
  * @method static self add(Inbox $inbox)
  * @method static self fallback($action)
  * @method static self continuousMatching()

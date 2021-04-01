@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox;
 
-use Asseco\Inbox\Contracts\Message;
+use Asseco\Inbox\Contracts\CanMatch;
 use Asseco\Inbox\Traits\HandlesParameters;
 use Asseco\Inbox\Traits\HandlesRegularExpressions;
 use Exception;
@@ -33,6 +33,11 @@ class Inbox
 
     protected bool $matchEither = false;
 
+    /**
+     * @param string $regex
+     * @return $this
+     * @throws Exception
+     */
     public function from(string $regex): self
     {
         $this->setPattern(Pattern::FROM, $regex);
@@ -40,6 +45,11 @@ class Inbox
         return $this;
     }
 
+    /**
+     * @param string $regex
+     * @return $this
+     * @throws Exception
+     */
     public function to(string $regex): self
     {
         $this->setPattern(Pattern::TO, $regex);
@@ -47,6 +57,11 @@ class Inbox
         return $this;
     }
 
+    /**
+     * @param string $regex
+     * @return $this
+     * @throws Exception
+     */
     public function cc(string $regex): self
     {
         $this->setPattern(Pattern::CC, $regex);
@@ -54,6 +69,11 @@ class Inbox
         return $this;
     }
 
+    /**
+     * @param string $regex
+     * @return $this
+     * @throws Exception
+     */
     public function bcc(string $regex): self
     {
         $this->setPattern(Pattern::BCC, $regex);
@@ -61,6 +81,11 @@ class Inbox
         return $this;
     }
 
+    /**
+     * @param string $regex
+     * @return $this
+     * @throws Exception
+     */
     public function subject(string $regex): self
     {
         $this->setPattern(Pattern::SUBJECT, $regex);
@@ -68,7 +93,15 @@ class Inbox
         return $this;
     }
 
-    protected function setPattern(string $matchBy, string $pattern): void
+    /**
+     * If no shorthand functions are adequate (from, to, cc...) use
+     * this one to set it manually.
+     *
+     * @param string $matchBy
+     * @param string $pattern
+     * @throws Exception
+     */
+    public function setPattern(string $matchBy, string $pattern): void
     {
         $this->patterns[] = new Pattern($matchBy, $pattern);
     }
@@ -94,7 +127,7 @@ class Inbox
         return $this;
     }
 
-    public function run(Message $message): bool
+    public function run(CanMatch $message): bool
     {
         if (!$message->isValid()) {
             throw new Exception('Message invalid.');
@@ -110,7 +143,7 @@ class Inbox
         return true;
     }
 
-    protected function matchFound(Message $message): bool
+    protected function matchFound(CanMatch $message): bool
     {
         $matchedPatterns = $this->filterPatterns($message);
 
@@ -119,7 +152,7 @@ class Inbox
             $this->isFullMatch($matchedPatterns);
     }
 
-    protected function filterPatterns(Message $message): Collection
+    protected function filterPatterns(CanMatch $message): Collection
     {
         return collect($this->patterns)->filter(function (Pattern $pattern) use ($message) {
             $matchedValues = $message->getMatchedValues($pattern->matchBy);
@@ -154,7 +187,7 @@ class Inbox
         return is_callable($this->action);
     }
 
-    protected function runCallable(Message $message)
+    protected function runCallable(CanMatch $message)
     {
         $callable = $this->action;
 
@@ -167,7 +200,7 @@ class Inbox
         return $callable(...array_values($parameters));
     }
 
-    protected function runClass(Message $message)
+    protected function runClass(CanMatch $message)
     {
         $method = $this->getInboxMethod();
         $inbox = $this->getInbox();

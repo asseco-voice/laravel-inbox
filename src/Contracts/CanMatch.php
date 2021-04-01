@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox\Contracts;
 
-interface Message
+interface CanMatch
 {
     public function isValid(): bool;
 

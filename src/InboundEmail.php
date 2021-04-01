@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox;
 
-use Asseco\Inbox\Contracts\Message;
+use Asseco\Inbox\Contracts\CanMatch;
 use Carbon\Carbon;
 use EmailReplyParser\EmailReplyParser;
 use Illuminate\Contracts\Mail\Mailable;
@@ -16,7 +16,7 @@ use ZBateson\MailMimeParser\Header\Part\AddressPart;
 use ZBateson\MailMimeParser\Message as MimeMessage;
 use ZBateson\MailMimeParser\Message\Part\MessagePart;
 
-class InboundEmail extends Model implements Message
+class InboundEmail extends Model implements CanMatch
 {
     /** @var MimeMessage */
     protected $mimeMessage;
