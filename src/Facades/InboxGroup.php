@@ -9,7 +9,7 @@ use Asseco\Inbox\Inbox;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static void run(CanMatch $message)
+ * @method static array run(CanMatch $message)
  * @method static self add(Inbox $inbox)
  * @method static self fallback($action)
  * @method static self continuousMatching()

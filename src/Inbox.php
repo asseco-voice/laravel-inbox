@@ -23,9 +23,9 @@ class Inbox
 
     protected $action;
 
-    protected array $matches = [];
+    protected array $meta = [];
 
-    protected array $wheres = [];
+    protected array $matches = [];
 
     protected array $patterns = [];
 
@@ -106,6 +106,18 @@ class Inbox
         $this->patterns[] = new Pattern($matchBy, $pattern);
     }
 
+    public function meta(array $meta)
+    {
+        $this->meta = $meta;
+
+        return $this;
+    }
+
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
     public function matchEither(bool $match = true): self
     {
         $this->matchEither = $match;
@@ -129,10 +141,6 @@ class Inbox
 
     public function run(CanMatch $message): bool
     {
-        if (!$message->isValid()) {
-            throw new Exception('Message invalid.');
-        }
-
         if (!$this->matchFound($message)) {
             return false;
         }
@@ -145,27 +153,45 @@ class Inbox
 
     protected function matchFound(CanMatch $message): bool
     {
-        $matchedPatterns = $this->filterPatterns($message);
+        $matchedPatterns = $this->getMatchedPatterns($message);
 
         return $this->matchEither ?
             $this->isPartialMatch($matchedPatterns) :
             $this->isFullMatch($matchedPatterns);
     }
 
-    protected function filterPatterns(CanMatch $message): Collection
+    protected function getMatchedPatterns(CanMatch $message): Collection
     {
-        return collect($this->patterns)->filter(function (Pattern $pattern) use ($message) {
-            $matchedValues = $message->getMatchedValues($pattern->matchBy);
+        return collect($this->patterns)
+            ->filter(function (Pattern $pattern) use ($message) {
 
-            return $this->valueMatchesRegex($matchedValues, $pattern->regex) !== null;
-        });
+                // Get the actual message values which should be validated against regex.
+                $values = $message->getMatchedValues($pattern->matchBy);
+
+                $matched = $this->match($values, $pattern->regex);
+
+                return $matched !== null;
+            });
     }
 
-    protected function valueMatchesRegex(array $matchValues, string $regex): ?string
+    /**
+     * Will match values against regex and stop on first match.
+     *
+     * I.e. if we have an email with list of CC's, it is enough to know that
+     * only one of those values was matched to know that pattern is matched.
+     *
+     * @param array $values
+     * @param string $regex
+     * @return string|null
+     */
+    protected function match(array $values, string $regex): ?string
     {
-        return collect($matchValues)->first(function (string $matchValue) use ($regex) {
-            return $this->matchesRegularExpression($matchValue, $regex);
-        });
+        return collect($values)
+            ->first(function (string $value) use ($regex) {
+
+                return $this->matchesRegularExpression($value, $regex);
+
+            });
     }
 
     protected function isPartialMatch(Collection $matchedPatterns): bool

@@ -26,11 +26,12 @@ class InboundEmailTest extends TestCase
     /** @test */
     public function it_catches_logged_mails()
     {
-        $inbox = (new Inbox())->from('{name}@asseco-see.hr')->action(function (CanMatch $email, $name) {
-            $this->assertSame($name, 'example');
-            $this->assertSame($email->from(), 'example@asseco-see.hr');
-            $this->assertSame($email->subject(), 'This is a subject');
-        });
+        $inbox = (new Inbox())
+            ->from('{.*}@asseco-see.hr')
+            ->action(function (CanMatch $email) {
+                $this->assertSame($email->from(), 'example@asseco-see.hr');
+                $this->assertSame($email->subject(), 'This is a subject');
+            });
 
         InboxGroup::add($inbox);
 

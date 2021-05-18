@@ -2,7 +2,7 @@
 
 # Laravel inbox
 
-Purpose of this package is to provide pattern matching for incoming 
+Purpose of this package is to provide pattern-matching for incoming 
 communication and executing custom callbacks if they match.
 
 Credits to [BeyondCode](https://github.com/beyondcode/laravel-mailbox) for the
@@ -16,81 +16,133 @@ Service provider will be registered automatically.
 
 ## Usage
 
-``Inbox`` is the main entity of the package providing a fluent API to 
-define set of patterns to match and how they interconnect, together 
-with a callback function which will be executed on a successful match.
+### Interface
+
+Before you start using the package, you need to have a class implementing a ``CanMatch``
+interface so that package knows what will it validate regex against. 
+
+I.e. if you want to validate against 'from', you need to defined where to fetch
+that piece of information from.
+
+```php
+class Message implements CanMatch
+{
+    ...
+    public function getMatchedValues(string $matchBy): array
+    {
+        switch ($matchBy) {
+            case 'from':                return [$this->from()];
+            case 'subject':             return [$this->subject()];
+            case 'something_custom':    return [$this->custom()];
+            default:                    return [];
+        }
+    }
+    ...
+}
+```
+
+### Inbox API
+
+``Inbox`` is a class in which you provide regex patterns which you'd like to be 
+matched before the given callback is executed. 
+
+I.e. the callback defined under `action()` will execute only if the `.*@gmail.com`
+pattern is matched:
+
+```php
+$inbox = new Inbox();
+
+$inbox
+    ->from('{.*}@gmail.com')
+    ->action(function (CanMatch $message) {
+        Log::info("Message received");
+    });
+```
+
+Patterns need to be surrounded within ``{ }``. 
+ 
+- ``from($pattern)`` will target `from` field
+- ``to($pattern)`` will target `to` field
+- ``cc($pattern)`` will target `cc` field
+- ``bcc($pattern)`` will target `bcc` field
+- ``subject($pattern)`` will target `subject` field
+
+
+- ```setPattern($name, $pattern)``` is created for every other use case 
+you might need. I.e. ``from($pattern)`` is just a shorthand for 
+`setPattern('from', $pattern)`.
+
+
+- ``meta([...])`` for adding any other meta-data. 
+
+
+- ``action(callable)`` is a callback to be executed and takes object implementing
+a `CanMatch` interface as an only argument (can be omitted though).
+ 
+
+- ``matchEither()`` will act as `OR` gate in case more than one pattern is defined.
+Default behavior is to match *all* patterns for a callback to execute. 
+
+
+- ``priority($number)`` will set inbox priority which will be taken into account
+*only* if ``InboxGroup`` is used. 
+
+
+- ``run(CanMatch $message)`` will take an instance of object implementing `CanMatch`
+interface and will return a bool of whether the inbox was hit or not. **This method
+must not be used when using inbox groups. They have their own `run()` method**.
+
+### Inbox group API
 
 Should you require multiple cases covered, there is also a higher level
-concept ``InboxGroup`` which acts as a container for multiple inboxes, 
+concept - ``InboxGroup`` which acts as a container for multiple inboxes, 
 having a few fluent API methods as well.
+
+- ``add(Inbox $inbox)`` will add an inbox to a group
+- ``continuousMatching()`` will continue matching after a first match is hit. Default
+behavior is to stop after one inbox is matched. 
+- ``fallback(callable)`` will add a (non-mandatory) fallback which will execute if no 
+inbox is hit.
+- ``run(CanMatch $message)`` will take an instance of object implementing `CanMatch`
+interface and will (unlike inbox ``run()`` method) return an array of matched inboxes. 
+Inboxes will be ran by priority.
+
+# More examples
 
 Examples will cover cases using mail, but it can be adapted to any incoming
 communication.
+
+Matching functions can be used to either provide an exact match (i.e. `from('exact@email.com')`)
+or providing a regex match which needs to be surrounded with curly braces ``{ }`` to be interpreted
+as such.
 
 Example:
 ```php
 $inbox = new Inbox();
 
 $inbox
-    ->from('{user}@gmail.com')
-    ->to('{user2}@gmail.com')
+    ->from('{.*}@gmail.com')
+    ->to('{.*}@gmail.com')
     ->subject('Subject to match')
-    ->where('user', '.*')
-    ->where('user2', '.*')
-    ->action(function (InboundEmail $email) {
+    ->action(function (CanMatch $email) {
         Log::info("Mail received");
     })
     ->matchEither()
     ->priority(10);
-
 ```
-
-Matching functions can be used to either provide an exact match (i.e. `from('exact@email.com')`)
-or providing a regex match, in which case you need to define a ``where()`` clause as well
-providing what will the keyword look for when validating:
-
-```php
-$inbox
-    ->from('{user}@{service}.com')
-    ->where('user', '.*')
-    ->where('service', '.*');
-```
-
-By default, all patterns need to be matched (`AND` match) in order for action to be executed. 
-So if you provide `from` and `to`, they both need to match. This can be changed 
-by including a `matchEither()` function which will transform this logic to 
-matching at least one (`OR` match). 
 
 More examples with outcomes:
 - having an exact match `from('your.mail@gmail.com')`:
   - only mails coming solely from `your.mail@gmail.com` will be matched.
-- having a partial match `from('{pattern}@gmail.com')` with `.*` pattern:
+- having a partial match `from('{.*}@gmail.com')`:
   - any gmail address will be matched like `someone@gmail.com` and `someone-else@gmail.com` will be 
   matched, but `someone@yahoo.com` won't).
-- having a partial match `from('your.name@{provider}')` with `.*` pattern:
+- having a partial match `from('your.name@{.*}')`:
   - same as last example, but this time the name is fixed and provider is flexible.
    It would match `your.name@gmail.com`, `your.name@yahoo.com`, but it wouldn't match
    ``not.your.name@gmail.com``.
-- having a full regex match: `from('{pattern}')` with `.*` pattern:
+- having a full regex match: `from('{.*}')`:
   - accepts anything.
-
-That being said, it is perfectly valid to stack several clauses together, but
-in case of using the same method (i.e. ``from()``), be sure to use `matchEither()`
-so that ``OR`` matching is triggered. 
-
-```php
-$inbox
-    ->from('{pattern}@gmail.com')
-    ->from('your.name@{provider}')
-    ->where('pattern', '[A-Z]+')
-    ->where('provider', 'yahoo.*')
-    ->matchEither();
-```
-
-Due to the fact that multiple inboxes can exist now, `InboxGroup` is responsible for 
-running them. Executing `InboxGroup::run($email)` will run all the inboxes. Prior to 
-executions it will order them by given `priority()`. `Inbox` has a default priority 
-of `0`. The bigger the number, the sooner it is executed. 
 
 Group example:
 ```php
@@ -106,21 +158,13 @@ public function receiveEmail($email){
         ->add($inbox1)
         ->add($inbox2)
         ->add($inbox3) 
-        ->fallback(function (InboundEmail $email) {
+        ->fallback(function (CanMatch $email) {
             Log::info("Fell back");
         })
         ->continuousMatching()
         ->run($email);
 }
 ```
-
-You can define a fallback on your `InboxGroup` so that if none of the inboxes match, 
-fallback will be executed. 
-
-Inboxes will, by default, stop at first match. Meaning, if out 
-of 5 inboxes, second one matches the incoming mail, execution will stop. This can 
-be overridden including the `continuousMatching()` function which will run 
-through all inboxes. So if match is found in 3/5 inboxes, those 3 callbacks will be executed. 
 
 If you don't want to use groups, but a single inbox, you can call run method on it directly:
 
