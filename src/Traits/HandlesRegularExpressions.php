@@ -17,7 +17,7 @@ trait HandlesRegularExpressions
 
         $this->matches = array_merge($this->matches, $matches);
 
-        return (bool)$matches;
+        return (bool) $matches;
     }
 
     /**
@@ -32,7 +32,7 @@ trait HandlesRegularExpressions
         preg_match_all('|{(.+?)}|', $fullString, $patterns);
 
         if (count($patterns) !== 2) {
-            throw new Exception("Patterns incorrect.");
+            throw new Exception('Patterns incorrect.');
         }
 
         [$requirements, $fullString] = $this->replaceNames($patterns[1], $fullString);
@@ -70,7 +70,6 @@ trait HandlesRegularExpressions
         $requirements = [];
 
         foreach ($patterns as $pattern) {
-
             $quotedPattern = '/' . preg_quote($pattern, '/') . '/';
 
             // Must not begin with a number
@@ -79,11 +78,12 @@ trait HandlesRegularExpressions
             $fullString = preg_replace($quotedPattern, $symfonyFriendlyPatternName, $fullString, 1);
 
             $requirements = array_merge($requirements, [
-                $symfonyFriendlyPatternName => $pattern
+                $symfonyFriendlyPatternName => $pattern,
             ]);
 
             $patternName++;
         }
-        return array($requirements, $fullString);
+
+        return [$requirements, $fullString];
     }
 }

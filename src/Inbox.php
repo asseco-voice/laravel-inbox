@@ -188,9 +188,7 @@ class Inbox
     {
         return collect($values)
             ->first(function (string $value) use ($regex) {
-
                 return $this->matchesRegularExpression($value, $regex);
-
             });
     }
 
