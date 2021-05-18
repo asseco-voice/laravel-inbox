@@ -26,8 +26,7 @@ class InboxTest extends TestCase
     public function it_matches_from_pattern()
     {
         $this->inbox
-            ->to('{pattern}@asseco-see.hr')
-            ->where('pattern', '.*')
+            ->to('{.*}@asseco-see.hr')
             ->action(function (CanMatch $email) {
                 $this->assertEquals(['someone@asseco-see.hr'], $email->to());
             });
@@ -41,8 +40,7 @@ class InboxTest extends TestCase
     public function it_rejects_wrong_pattern()
     {
         $this->inbox
-            ->to('{pattern}@asseco-see.hr')
-            ->where('pattern', '[a-z]+')
+            ->to('{[a-z]+}@asseco-see.hr')
             ->action(function ($email) {
             });
 
@@ -58,9 +56,7 @@ class InboxTest extends TestCase
     public function it_matches_multiple_one_line_patterns()
     {
         $this->inbox
-            ->to('{username}@{provider}')
-            ->where('username', '[a-z]+')
-            ->where('provider', 'asseco-see.hr')
+            ->to('{[a-z]+}@{asseco-see.hr}')
             ->action(function ($email) {
                 $this->assertEquals(['someone@asseco-see.hr'], $email->to());
             });
@@ -74,9 +70,8 @@ class InboxTest extends TestCase
     public function it_matches_multiple_patterns()
     {
         $this->inbox
-            ->from('{pattern}@asseco-see.hr')
-            ->to('{pattern}@asseco-see.hr')
-            ->where('pattern', '[a-z]+')
+            ->from('{[a-z]+}@asseco-see.hr')
+            ->to('{[a-z]+}@asseco-see.hr')
             ->action(function ($email) {
                 $this->assertEquals(['someone@asseco-see.hr'], $email->to());
             });
@@ -90,10 +85,8 @@ class InboxTest extends TestCase
     public function it_matches_at_least_one_pattern()
     {
         $this->inbox
-            ->from('{pattern}@asseco-see.hr')
-            ->to('someone@{provider}.com')
-            ->where('pattern', '[a-z]+')
-            ->where('provider', 'gmail')
+            ->from('{[a-z]+}@asseco-see.hr')
+            ->to('someone@{gmail}.com')
             ->matchEither()
             ->action(function ($email) {
                 $this->assertEquals(['someone@asseco-see.hr'], $email->to());

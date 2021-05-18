@@ -24,12 +24,14 @@ class InboxGroup
 
     /**
      * @param CanMatch $message
+     * @return array
      * @throws Exception
      */
-    public function run(CanMatch $message): void
+    public function run(CanMatch $message): array
     {
-        $matchedAny = false;
         $inboxes = collect($this->inboxes)->sortByDesc('priority');
+
+        $matchedInboxes = [];
 
         /**
          * @var $inbox Inbox
@@ -41,16 +43,20 @@ class InboxGroup
                 continue;
             }
 
-            $matchedAny = true;
+            $matchedInboxes[] = $inbox;
 
             if (!$this->continuousMatching) {
                 break;
             }
         }
 
-        if (!$matchedAny && $this->fallback !== null) {
+        if (empty($matchedInboxes) && $this->fallback !== null) {
             $this->fallback->run($message);
+
+            return [$this->fallback];
         }
+
+        return $matchedInboxes;
     }
 
     public function fallback($action): self

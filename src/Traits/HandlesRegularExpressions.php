@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Asseco\Inbox\Traits;
 
+use Exception;
 use Symfony\Component\Routing\Route;
 
 trait HandlesRegularExpressions
 {
     protected function matchesRegularExpression(string $matchValue, string $regex): bool
     {
-        preg_match($this->getRegularExpression($regex), $matchValue, $matches);
+        $pattern = $this->getPattern($regex);
+
+        preg_match($pattern, $matchValue, $matches);
 
         $this->matches = array_merge($this->matches, $matches);
 
@@ -18,39 +21,69 @@ trait HandlesRegularExpressions
     }
 
     /**
-     * We do not want to create the regular expression on our own,
-     * so we just use Symfony's Route for this.
+     * Re-using Symfony's Route for pattern parsing.
      *
-     * @param string $regex
+     * @param string $fullString
      * @return string
+     * @throws Exception
      */
-    protected function getRegularExpression(string $regex): string
+    protected function getPattern(string $fullString): string
     {
-        $route = new Route($regex);
+        preg_match_all('|{(.+?)}|', $fullString, $patterns);
 
-        $route->setRequirements($this->wheres);
-
-        $regex = $route->compile()->getRegex();
-
-        $regex = preg_replace('/^(#|{)\^\/(.*)/', '$1^$2', $regex);
-        $regex = str_replace('>[^/]+)', '>.+)', $regex);
-        $regex = str_replace('$#sD', '$#sDi', $regex);
-        $regex = str_replace('$}sD', '$}sDi', $regex);
-
-        return $regex;
-    }
-
-    public function where($name, $expression = null)
-    {
-        foreach ($this->parseWhere($name, $expression) as $name => $expression) {
-            $this->wheres[$name] = $expression;
+        if (count($patterns) !== 2) {
+            throw new Exception('Patterns incorrect.');
         }
 
-        return $this;
+        [$requirements, $fullString] = $this->replaceNames($patterns[1], $fullString);
+
+        $route = new Route($fullString);
+
+        $route->setRequirements($requirements);
+
+        $fullString = $route->compile()->getRegex();
+
+        $fullString = preg_replace('/^(#|{)\^\/(.*)/', '$1^$2', $fullString);
+        $fullString = str_replace('>[^/]+)', '>.+)', $fullString);
+        $fullString = str_replace('$#sD', '$#sDi', $fullString);
+        $fullString = str_replace('$}sD', '$}sDi', $fullString);
+
+        return $fullString;
     }
 
-    protected function parseWhere($name, $expression): array
+    /**
+     * Replacing actual patterns with placeholders so Symfony can convert it.
+     *
+     * I.e.
+     *
+     * Input:  {.*}something
+     *
+     * Output: {p_1}something, where requirement is set as ['p_1' => '.*']
+     *
+     * @param array $patterns
+     * @param string $fullString
+     * @return array
+     */
+    protected function replaceNames(array $patterns, string $fullString): array
     {
-        return is_array($name) ? $name : [$name => $expression];
+        $patternName = 1;
+        $requirements = [];
+
+        foreach ($patterns as $pattern) {
+            $quotedPattern = '/' . preg_quote($pattern, '/') . '/';
+
+            // Must not begin with a number
+            $symfonyFriendlyPatternName = "p_$patternName";
+
+            $fullString = preg_replace($quotedPattern, $symfonyFriendlyPatternName, $fullString, 1);
+
+            $requirements = array_merge($requirements, [
+                $symfonyFriendlyPatternName => $pattern,
+            ]);
+
+            $patternName++;
+        }
+
+        return [$requirements, $fullString];
     }
 }

@@ -6,8 +6,6 @@ namespace Asseco\Inbox\Contracts;
 
 interface CanMatch
 {
-    public function isValid(): bool;
-
     /**
      * Given the parameter to match by, return adequate array of values.
      *
