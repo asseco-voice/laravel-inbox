@@ -23,8 +23,9 @@ trait HandlesRegularExpressions
     /**
      * Re-using Symfony's Route for pattern parsing.
      *
-     * @param string $fullString
+     * @param  string  $fullString
      * @return string
+     *
      * @throws Exception
      */
     protected function getPattern(string $fullString): string
@@ -60,8 +61,8 @@ trait HandlesRegularExpressions
      *
      * Output: {p_1}something, where requirement is set as ['p_1' => '.*']
      *
-     * @param array $patterns
-     * @param string $fullString
+     * @param  array  $patterns
+     * @param  string  $fullString
      * @return array
      */
     protected function replaceNames(array $patterns, string $fullString): array
