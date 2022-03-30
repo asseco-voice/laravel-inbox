@@ -19,8 +19,10 @@ class Pattern
 
     /**
      * Pattern constructor.
-     * @param string $matchBy
-     * @param string $regex
+     *
+     * @param  string  $matchBy
+     * @param  string  $regex
+     *
      * @throws Exception
      */
     public function __construct(string $matchBy, string $regex)

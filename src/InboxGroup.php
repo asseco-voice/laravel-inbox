@@ -23,8 +23,9 @@ class InboxGroup
     }
 
     /**
-     * @param CanMatch $message
+     * @param  CanMatch  $message
      * @return array
+     *
      * @throws Exception
      */
     public function run(CanMatch $message): array

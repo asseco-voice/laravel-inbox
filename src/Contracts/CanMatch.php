@@ -14,7 +14,7 @@ interface CanMatch
      *      matching by 'message' should for SMS return SMS message
      *      matching by 'to' should for email return all recipients
      *
-     * @param string $matchBy
+     * @param  string  $matchBy
      * @return array
      */
     public function getMatchedValues(string $matchBy): array;
