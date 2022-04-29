@@ -34,7 +34,7 @@ class Inbox
     protected bool $matchEither = false;
 
     /**
-     * @param string $regex
+     * @param  string  $regex
      * @return $this
      *
      * @throws Exception
@@ -47,7 +47,7 @@ class Inbox
     }
 
     /**
-     * @param string $regex
+     * @param  string  $regex
      * @return $this
      *
      * @throws Exception
@@ -60,7 +60,7 @@ class Inbox
     }
 
     /**
-     * @param string $regex
+     * @param  string  $regex
      * @return $this
      *
      * @throws Exception
@@ -73,7 +73,7 @@ class Inbox
     }
 
     /**
-     * @param string $regex
+     * @param  string  $regex
      * @return $this
      *
      * @throws Exception
@@ -86,7 +86,7 @@ class Inbox
     }
 
     /**
-     * @param string $regex
+     * @param  string  $regex
      * @return $this
      *
      * @throws Exception
@@ -102,8 +102,8 @@ class Inbox
      * If no shorthand functions are adequate (from, to, cc...) use
      * this one to set it manually.
      *
-     * @param string $matchBy
-     * @param string $pattern
+     * @param  string  $matchBy
+     * @param  string  $pattern
      *
      * @throws Exception
      */
@@ -186,8 +186,8 @@ class Inbox
      * I.e. if we have an email with list of CC's, it is enough to know that
      * only one of those values was matched to know that pattern is matched.
      *
-     * @param array $values
-     * @param string $regex
+     * @param  array  $values
+     * @param  string  $regex
      * @return string|null
      */
     protected function match(array $values, string $regex): ?string
