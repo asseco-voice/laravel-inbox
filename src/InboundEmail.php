@@ -6,20 +6,18 @@ namespace Asseco\Inbox;
 
 use Asseco\Inbox\Contracts\CanMatch;
 use Carbon\Carbon;
-use EmailReplyParser\EmailReplyParser;
 use Illuminate\Contracts\Mail\Mailable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use ZBateson\MailMimeParser\Header\AddressHeader;
-use ZBateson\MailMimeParser\Header\Part\AddressPart;
-use ZBateson\MailMimeParser\Message as MimeMessage;
-use ZBateson\MailMimeParser\Message\Part\MessagePart;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
 
 class InboundEmail extends Model implements CanMatch
 {
-    /** @var MimeMessage */
-    protected $mimeMessage;
+    protected Email $emailMessage;
 
     protected $fillable = [
         'message',
@@ -34,7 +32,7 @@ class InboundEmail extends Model implements CanMatch
         });
     }
 
-    public static function fromMessage($message): self
+    public static function fromMessage(Email $message): self
     {
         /**
          * @var InboundEmail $inbound
@@ -48,171 +46,118 @@ class InboundEmail extends Model implements CanMatch
 
     public function id(): string
     {
-        return $this->message()->getHeaderValue('Message-Id', Str::random());
+        return $this->message()->getHeaders()->getHeaderBody('Message-Id') ?: Str::random();
     }
 
     public function date(): Carbon
     {
-        return Carbon::make($this->message()->getHeaderValue('Date'));
-    }
-
-    public function text(): ?string
-    {
-        return $this->message()->getTextContent();
-    }
-
-    public function visibleText(): ?string
-    {
-        return EmailReplyParser::parseReply($this->text());
-    }
-
-    public function html(): ?string
-    {
-        return $this->message()->getHtmlContent();
-    }
-
-    public function headerValue($headerName): ?string
-    {
-        return $this->message()->getHeaderValue($headerName, null);
+        return Carbon::make($this->message()->getHeaders()->getHeaderBody('Date'));
     }
 
     public function subject(): ?string
     {
-        return $this->message()->getHeaderValue('Subject');
+        return $this->message()->getHeaders()->getHeaderBody('Subject');
     }
 
     public function from(): string
     {
-        $from = $this->message()->getHeader('From');
+        $from = $this->extractAddress(
+            $this->message()->getHeaders()->getHeaderBody('From')
+        );
 
-        if ($from instanceof AddressHeader) {
-            return $from->getEmail();
-        }
-
-        return '';
+        return Arr::get($from, 0, '');
     }
 
     public function fromName(): string
     {
-        $from = $this->message()->getHeader('From');
+        $fromArray = $this->message()->getHeaders()->getHeaderBody('From');
+        $from = Arr::get($fromArray, 0);
 
-        if ($from instanceof AddressHeader) {
-            return $from->getPersonName();
+        if (!$from instanceof Address) {
+            return '';
         }
 
-        return '';
+        return $from->getName();
     }
 
-    /**
-     * @return AddressPart[]
-     */
     public function to(): array
     {
-        return $this->convertAddressHeader($this->message()->getHeader('To'));
+        return $this->extractAddress(
+            $this->message()->getHeaders()->getHeaderBody('To')
+        );
     }
 
-    /**
-     * @return AddressPart[]
-     */
     public function cc(): array
     {
-        return $this->convertAddressHeader($this->message()->getHeader('Cc'));
+        return $this->extractAddress(
+            $this->message()->getHeaders()->getHeaderBody('Cc')
+        );
     }
 
-    /**
-     * @return AddressPart[]
-     */
     public function bcc(): array
     {
-        return $this->convertAddressHeader($this->message()->getHeader('Bcc'));
-    }
-
-    protected function convertAddressHeader($header): array
-    {
-        if ($header instanceof AddressHeader) {
-            return collect($header->getAddresses())->toArray();
-        }
-
-        return [];
+        return $this->extractAddress(
+            $this->message()->getHeaders()->getHeaderBody('Bcc')
+        );
     }
 
     /**
-     * @return MessagePart[]
+     * @return array|DataPart[]
      */
-    public function attachments()
+    public function attachments(): array
     {
-        return $this->message()->getAllAttachmentParts();
+        return $this->message()->getAttachments();
     }
 
-    public function message(): MimeMessage
+    public function message(): Email
     {
-        $this->mimeMessage = $this->mimeMessage ?: MimeMessage::from($this->message);
+        $this->emailMessage = $this->message;
 
-        return $this->mimeMessage;
+        return $this->emailMessage;
     }
 
     public function reply(Mailable $mailable)
     {
         if ($mailable instanceof \Illuminate\Mail\Mailable) {
-            $mailable->withSwiftMessage(function (\Swift_Message $message) {
+            $mailable->withSymfonyMessage(function (Email $message) {
                 $message->getHeaders()->addIdHeader('In-Reply-To', $this->id());
             });
         }
 
-        return Mail::to($this->from())->send($mailable);
+        Mail::to($this->from())->send($mailable);
     }
 
     public function forward($recipients)
     {
         Mail::send([], [], function ($message) use ($recipients) {
-            $message->to($recipients)
+            $message
+                ->to($recipients)
                 ->subject($this->subject())
-                ->setBody($this->body(), $this->message()->getContentType());
+                ->html($this->body());
         });
     }
 
     public function body(): ?string
     {
-        return $this->isHtml() ? $this->html() : $this->text();
-    }
-
-    public function isHtml(): bool
-    {
-        return !empty($this->html());
-    }
-
-    public function isText(): bool
-    {
-        return !empty($this->text());
-    }
-
-    public function isValid(): bool
-    {
-        return $this->from() !== '' && ($this->isText() || $this->isHtml());
+        return $this->message()->getBody()->toString();
     }
 
     public function getMatchedValues(string $matchBy): array
     {
-        switch ($matchBy) {
-            case Pattern::FROM:
-                return [$this->from()];
-            case Pattern::TO:
-                return $this->convertMessageAddresses($this->to());
-            case Pattern::CC:
-                return $this->convertMessageAddresses($this->cc());
-            case Pattern::BCC:
-                return $this->convertMessageAddresses($this->bcc());
-            case Pattern::SUBJECT:
-                return [$this->subject()];
-            default:
-                return [];
-        }
+        return match ($matchBy) {
+            Pattern::FROM => [$this->from()],
+            Pattern::TO => $this->to(),
+            Pattern::CC => $this->cc(),
+            Pattern::BCC => $this->bcc(),
+            Pattern::SUBJECT => [$this->subject()],
+            default => [],
+        };
     }
 
-    protected function convertMessageAddresses($addresses): array
+    protected function extractAddress($addresses): array
     {
-        return collect($addresses)->map(function (AddressPart $address) {
-            return $address->getEmail();
+        return collect($addresses)->map(function (Address $address) {
+            return $address->getAddress();
         })->toArray();
     }
 }
