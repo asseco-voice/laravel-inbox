@@ -49,6 +49,11 @@ class InboundEmail extends Model implements CanMatch
         return $this->message()->getHeaders()->getHeaderBody('Message-Id') ?: Str::random();
     }
 
+    public function replyId(): ?string
+    {
+        return $this->message()->getHeaders()->getHeaderBody('In-Reply-To') ?: null;
+    }
+
     public function date(): Carbon
     {
         return Carbon::make($this->message()->getHeaders()->getHeaderBody('Date'));
@@ -99,6 +104,11 @@ class InboundEmail extends Model implements CanMatch
         return $this->extractAddress(
             $this->message()->getHeaders()->getHeaderBody('Bcc')
         );
+    }
+
+    public function headerValue(string $header): ?string
+    {
+        return $this->message()->getHeaders()->getHeaderBody($header) ?: null;
     }
 
     /**
