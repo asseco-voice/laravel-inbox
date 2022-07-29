@@ -8,16 +8,16 @@ use Asseco\Inbox\Contracts\CanMatch;
 use Carbon\Carbon;
 use Illuminate\Contracts\Mail\Mailable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mime\Part\DataPart;
+use ZBateson\MailMimeParser\Header\AddressHeader;
+use ZBateson\MailMimeParser\Header\Part\AddressPart;
+use ZBateson\MailMimeParser\Message as MimeMessage;
 
 class InboundEmail extends Model implements CanMatch
 {
-    protected Email $emailMessage;
+    public MimeMessage $message;
 
     protected $fillable = [
         'message',
@@ -32,13 +32,13 @@ class InboundEmail extends Model implements CanMatch
         });
     }
 
-    public static function fromMessage(Email $message): self
+    public static function fromMessage(string $message): self
     {
         /**
          * @var InboundEmail $inbound
          */
         $inbound = self::query()->make([
-            'message' => $message,
+            'message' => MimeMessage::from($message, true)
         ]);
 
         return $inbound;
@@ -46,84 +46,82 @@ class InboundEmail extends Model implements CanMatch
 
     public function id(): string
     {
-        return $this->message()->getHeaders()->getHeaderBody('Message-Id') ?: Str::random();
+        return $this->message->getHeaderValue('Message-Id', Str::random());
     }
 
     public function replyId(): ?string
     {
-        return $this->message()->getHeaders()->getHeaderBody('In-Reply-To') ?: null;
+        return $this->message->getHeaderValue('In-Reply-To');
     }
 
     public function date(): Carbon
     {
-        return Carbon::make($this->message()->getHeaders()->getHeaderBody('Date'));
+        return Carbon::make($this->message->getHeaderValue('Date'));
     }
 
     public function subject(): ?string
     {
-        return $this->message()->getHeaders()->getHeaderBody('Subject');
+        return $this->message->getHeaderValue('Subject');
     }
 
     public function from(): string
     {
-        $from = $this->extractAddress(
-            $this->message()->getHeaders()->getHeaderBody('From')
-        );
+        $from = $this->message->getHeader('From');
 
-        return Arr::get($from, 0, '');
+        if ($from instanceof AddressHeader) {
+            return $from->getEmail();
+        }
+
+        return '';
     }
 
     public function fromName(): string
     {
-        $fromArray = $this->message()->getHeaders()->getHeaderBody('From');
-        $from = Arr::get($fromArray, 0);
+        $from = $this->message->getHeader('From');
 
-        if (!$from instanceof Address) {
-            return '';
+        if ($from instanceof AddressHeader) {
+            return $from->getPersonName();
         }
 
-        return $from->getName();
-    }
-
-    public function to(): array
-    {
-        return $this->extractAddress(
-            $this->message()->getHeaders()->getHeaderBody('To')
-        );
-    }
-
-    public function cc(): array
-    {
-        return $this->extractAddress(
-            $this->message()->getHeaders()->getHeaderBody('Cc')
-        );
-    }
-
-    public function bcc(): array
-    {
-        return $this->extractAddress(
-            $this->message()->getHeaders()->getHeaderBody('Bcc')
-        );
-    }
-
-    public function headerValue(string $header): ?string
-    {
-        return $this->message()->getHeaders()->getHeaderBody($header) ?: null;
+        return '';
     }
 
     /**
-     * @return array|DataPart[]
+     * @return AddressPart[]
      */
-    public function attachments(): array
+    public function to(): array
     {
-        return $this->message()->getAttachments();
+        return $this->convertAddressHeader($this->message->getHeader('To'));
     }
 
-    public function message(): Email
+    /**
+     * @return AddressPart[]
+     */
+    public function cc(): array
     {
-        $this->emailMessage = $this->message;
+        return $this->convertAddressHeader($this->message->getHeader('Cc'));
+    }
 
-        return $this->emailMessage;
+    /**
+     * @return AddressPart[]
+     */
+    public function bcc(): array
+    {
+        return $this->convertAddressHeader($this->message->getHeader('Bcc'));
+    }
+
+    protected function convertAddressHeader($header): array
+    {
+        if ($header instanceof AddressHeader) {
+            return collect($header->getAddresses())->toArray();
+        }
+
+        return [];
+    }
+
+    public function attachments(): array
+    {
+        return $this->message->getAllAttachmentParts();
     }
 
     public function reply(Mailable $mailable)
@@ -134,40 +132,64 @@ class InboundEmail extends Model implements CanMatch
             });
         }
 
-        Mail::to($this->from())->send($mailable);
+        return Mail::to($this->from())->send($mailable);
     }
 
     public function forward($recipients)
     {
         Mail::send([], [], function ($message) use ($recipients) {
-            $message
-                ->to($recipients)
+            $message->to($recipients)
                 ->subject($this->subject())
-                ->html($this->body());
+                ->setBody($this->body(), $this->message->getContentType());
         });
     }
 
     public function body(): ?string
     {
-        return $this->message()->getBody()->toString();
+        return $this->isHtml() ? $this->html() : $this->text();
+    }
+
+    public function isHtml(): bool
+    {
+        return !empty($this->html());
+    }
+
+    public function isText(): bool
+    {
+        return !empty($this->text());
+    }
+
+    public function text(): ?string
+    {
+        return $this->message->getTextContent();
+    }
+
+    public function html(): ?string
+    {
+        return $this->message->getHtmlContent();
+    }
+
+    public function isValid(): bool
+    {
+        return $this->from() !== '' && ($this->isText() || $this->isHtml());
     }
 
     public function getMatchedValues(string $matchBy): array
     {
         return match ($matchBy) {
             Pattern::FROM => [$this->from()],
-            Pattern::TO => $this->to(),
-            Pattern::CC => $this->cc(),
-            Pattern::BCC => $this->bcc(),
+            Pattern::TO => $this->convertMessageAddresses($this->to()),
+            Pattern::CC => $this->convertMessageAddresses($this->cc()),
+            Pattern::BCC => $this->convertMessageAddresses($this->bcc()),
             Pattern::SUBJECT => [$this->subject()],
             default => [],
         };
     }
 
-    protected function extractAddress($addresses): array
+    protected function convertMessageAddresses($addresses): array
     {
-        return collect($addresses)->map(function (Address $address) {
-            return $address->getAddress();
+        return collect($addresses)->map(function (AddressPart $address) {
+            return $address->getEmail();
         })->toArray();
     }
 }
