@@ -33,6 +33,6 @@ class EmailRequest extends FormRequest
 
     public function email(): InboundEmail
     {
-        return InboundEmail::fromMessage($this->get('email'));
+        return new InboundEmail($this->get('email'));
     }
 }
