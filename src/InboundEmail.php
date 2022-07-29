@@ -7,7 +7,6 @@ namespace Asseco\Inbox;
 use Asseco\Inbox\Contracts\CanMatch;
 use Carbon\Carbon;
 use Illuminate\Contracts\Mail\Mailable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Symfony\Component\Mime\Email;
