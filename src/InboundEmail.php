@@ -38,7 +38,7 @@ class InboundEmail extends Model implements CanMatch
          * @var InboundEmail $inbound
          */
         $inbound = self::query()->make([
-            'message' => MimeMessage::from($message, true)
+            'message' => MimeMessage::from($message, true),
         ]);
 
         return $inbound;
