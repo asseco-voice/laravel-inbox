@@ -35,7 +35,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     public function processLog(MessageSent $event)
     {
-        $email = InboundEmail::fromMessage($event->message);
+        $email = new InboundEmail($event->message->toString());
 
         InboxGroup::run($email);
     }

@@ -15,33 +15,13 @@ use ZBateson\MailMimeParser\Header\AddressHeader;
 use ZBateson\MailMimeParser\Header\Part\AddressPart;
 use ZBateson\MailMimeParser\Message as MimeMessage;
 
-class InboundEmail extends Model implements CanMatch
+class InboundEmail implements CanMatch
 {
     public MimeMessage $message;
 
-    protected $fillable = [
-        'message',
-    ];
-
-    protected static function boot()
+    public function __construct(string $message)
     {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->message_id = $model->id();
-        });
-    }
-
-    public static function fromMessage(string $message): self
-    {
-        /**
-         * @var InboundEmail $inbound
-         */
-        $inbound = self::query()->make([
-            'message' => MimeMessage::from($message, true)
-        ]);
-
-        return $inbound;
+        $this->message = MimeMessage::from($message, true);
     }
 
     public function id(): string
