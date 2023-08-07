@@ -170,7 +170,6 @@ class Inbox
     {
         return collect($this->patterns)
             ->filter(function (Pattern $pattern) use ($message) {
-
                 // Get the actual message values which should be validated against regex.
                 $values = $message->getMatchedValues($pattern->matchBy);
 
