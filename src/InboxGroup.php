@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Asseco\Inbox;
 
 use Asseco\Inbox\Contracts\CanMatch;
-use Exception;
 
 class InboxGroup
 {
@@ -23,13 +22,13 @@ class InboxGroup
     }
 
     /**
-     * @param CanMatch $message
-     * @param bool|null $continuousMatching
+     * @param  CanMatch  $message
+     * @param  bool|null  $continuousMatching
      * @return array|Inbox[]|null[]
      */
     public function run(CanMatch $message, ?bool $continuousMatching = false): array
     {
-        if ($continuousMatching){
+        if ($continuousMatching) {
             $this->continuousMatching();
         }
         $inboxes = collect($this->inboxes)->sortByDesc('priority');
