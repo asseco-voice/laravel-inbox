@@ -23,13 +23,15 @@ class InboxGroup
     }
 
     /**
-     * @param  CanMatch  $message
-     * @return array
-     *
-     * @throws Exception
+     * @param CanMatch $message
+     * @param bool|null $continuousMatching
+     * @return array|Inbox[]|null[]
      */
-    public function run(CanMatch $message): array
+    public function run(CanMatch $message, ?bool $continuousMatching = false): array
     {
+        if ($continuousMatching){
+            $this->continuousMatching();
+        }
         $inboxes = collect($this->inboxes)->sortByDesc('priority');
 
         $matchedInboxes = [];
