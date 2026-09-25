@@ -35,5 +35,10 @@
                 "Asseco\\Inbox\\InboxServiceProvider"
             ]
         }
+    },
+    "config": {
+        "platform": {
+            "php": "8.1"
+        }
     }
 }
