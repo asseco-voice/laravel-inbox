@@ -46,5 +46,7 @@ jobs:
         with:
           path: 'src'
           php_version: '8.1'
+          version: '2.2.16'
+          autoload_file: 'vendor/autoload.php'
           level: 0
           memory_limit: 265M
