@@ -22,7 +22,7 @@ class InboxTest extends TestCase
         $this->inbox = new Inbox();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_matches_from_pattern()
     {
         $this->inbox
@@ -36,7 +36,7 @@ class InboxTest extends TestCase
         Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_rejects_wrong_pattern()
     {
         $this->inbox
@@ -52,7 +52,7 @@ class InboxTest extends TestCase
         $this->assertTrue(true);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_matches_multiple_one_line_patterns()
     {
         $this->inbox
@@ -66,7 +66,7 @@ class InboxTest extends TestCase
         Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_matches_multiple_patterns()
     {
         $this->inbox
@@ -81,7 +81,7 @@ class InboxTest extends TestCase
         Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_matches_at_least_one_pattern()
     {
         $this->inbox

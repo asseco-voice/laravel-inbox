@@ -9,7 +9,7 @@ use Asseco\Inbox\Tests\TestCase;
 
 class PatternTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function accepts_valid_match_parameter()
     {
         $pattern = new Pattern('from', '.*');

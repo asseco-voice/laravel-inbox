@@ -8,6 +8,7 @@ use Asseco\Inbox\Contracts\CanMatch;
 use Asseco\Inbox\Traits\HandlesParameters;
 use Asseco\Inbox\Traits\HandlesRegularExpressions;
 use Exception;
+use Illuminate\Container\Container;
 use Illuminate\Routing\RouteDependencyResolverTrait;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -32,6 +33,16 @@ class Inbox
     protected int $priority = 0;
 
     protected bool $matchEither = false;
+
+    /**
+     * Read by RouteDependencyResolverTrait since Laravel 11.
+     */
+    protected Container $container;
+
+    public function __construct()
+    {
+        $this->container = Container::getInstance();
+    }
 
     /**
      * @param  string  $regex
