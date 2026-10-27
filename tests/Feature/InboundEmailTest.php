@@ -23,7 +23,7 @@ class InboundEmailTest extends TestCase
         $this->inbox = new Inbox();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_catches_logged_mails()
     {
         $inbox = (new Inbox())
@@ -38,7 +38,7 @@ class InboundEmailTest extends TestCase
         Mail::to('someone@asseco-see.hr')->send(new TestMail);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_use_fallbacks()
     {
         InboxGroup::fallback(function (CanMatch $email) {
@@ -51,7 +51,7 @@ class InboundEmailTest extends TestCase
         Mail::assertSent(ReplyMail::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_reply_to_mails()
     {
         $inbox = (new Inbox())
